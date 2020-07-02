@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="FaceSearch">
+	 <file>Resources/img/face.jpg</file>
+    </qresource>
+</RCC>
