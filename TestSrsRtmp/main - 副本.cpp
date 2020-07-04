@@ -1,20 +1,17 @@
 #include <stdio.h>
 #include <string.h>
-#include "HILibRtmpAPI.h"
 
 #pragma comment (lib,"ws2_32.lib")
 
 #include <iostream>
-//#include "srs_librtmp.h"
+#include "srs_librtmp.h"
 //#include "srs_kernel_codec.h"
 #include "../HIFfReadAPI/include/HIFfReadAPI.h"
-#include <windows.h>
+
 void* gRtmp = nullptr;
 bool start = false;
-
-intptr_t g_pushHandle = 0;
 // https://github.com/ossrs/srs/issues/212#issuecomment-64145910
-/*int read_audio_frame(char* data, int size, char** pp, char** frame, int* frame_size)
+int read_audio_frame(char* data, int size, char** pp, char** frame, int* frame_size)
 {
 	char* p = *pp;
 
@@ -184,19 +181,15 @@ int srs_librtmp_push(srs_rtmp_t rtmp, char* h264_raw, off_t file_size, double fp
 			usleep(1000 * 1000 * count / fps);
 			count = 0;
 		}*/
-	/*}
+	}
 	srs_human_trace("h264 raw data completed");
 	p = h264_raw;
 	//}
 
 	return 0;
-}*/
+}
 static void v_packet_cb(intptr_t param, int streamid, const void* packet, size_t bytes, int w, int h, uint64_t time, int flags, int extra)
 {
-
-
-	rtmp_api_client_input(g_pushHandle,  streamid,  packet,  bytes,  time,  flags);
-
 	//time = time * 1000;
 	//if (extra)
 		//srs_rtmp_write_packet(gRtmp, SRS_RTMP_TYPE_SCRIPT, time, (char*)packet, bytes);
@@ -210,14 +203,14 @@ static void v_packet_cb(intptr_t param, int streamid, const void* packet, size_t
 	//	printf("kkkk\n");
 	//}
 
-	//int ret = srs_h264_write_raw_frames(gRtmp, (char*)packet, bytes, time, time);
+	int ret = srs_h264_write_raw_frames(gRtmp, (char*)packet, bytes, time, time);
 	//ret = srs_h264_write_raw_frames(gRtmp, (char*)packet, bytes, time, time);
 	//srs_rtmp_write_packet(gRtmp, SRS_RTMP_TYPE_VIDEO, time, (char*)packet, bytes);
 	//printf("1111\n");
 
 }
 
-/*int srs_librtmp_connect(srs_rtmp_t rtmp)
+int srs_librtmp_connect(srs_rtmp_t rtmp)
 {
 	if (srs_rtmp_handshake(rtmp) != 0) {
 		srs_human_trace("simple handshake failed.");
@@ -238,7 +231,7 @@ static void v_packet_cb(intptr_t param, int streamid, const void* packet, size_t
 	srs_human_trace("publish stream success");
 
 	return 0;
-}*/
+}
 
 int main(int argc, char *argv[])
 {
@@ -249,14 +242,8 @@ int main(int argc, char *argv[])
 	srs_rtmp_connect_app(gRtmp);
 	srs_rtmp_publish_stream(gRtmp);*/
 
-	/*gRtmp = srs_rtmp_create("rtmp://10.55.16.111:1935/head/04006e8ba423b544c9d4");
-	srs_librtmp_connect(gRtmp);*/
-
-	
-
-	struct rtmp_handler_t handler;
-
-	g_pushHandle=rtmp_api_client_open_stream((char*)"rtmp://10.55.16.111:1935/head/04006e8ba423b544c9d4" ,0,0,&handler ,0);
+	gRtmp = srs_rtmp_create("rtmp://10.55.16.111:1935/head/04006e8ba423b544c9d4");
+	srs_librtmp_connect(gRtmp);
 	struct ffmpeg_handler_t h;
 	memset(&h, 0, sizeof(struct ffmpeg_handler_t));
 	h.onvideo = v_packet_cb;

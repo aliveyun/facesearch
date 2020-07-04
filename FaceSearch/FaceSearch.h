@@ -8,6 +8,7 @@ typedef struct face_item_t
 {
 	QString  File;
     QString  SaveFile;
+    QString  FileName;
 	intptr_t handle;
     intptr_t pThis;
     intptr_t faceObject;

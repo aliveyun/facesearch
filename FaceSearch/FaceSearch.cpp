@@ -160,9 +160,9 @@ static QStringList addSubFolderImages(QString path)
 		dir_iterator.next();
 		QFileInfo file_info = dir_iterator.fileInfo();
 		QString absolute_file_path = file_info.absoluteFilePath();
-		//QString file_name = file_info.baseName();
-		//absolute_file_path.append("@@");
-		//absolute_file_path.append(file_name);
+		QString file_name = file_info.baseName();
+		/*absolute_file_path.append("@@");
+		absolute_file_path.append(file_name);*/
 
 		string_list.append(absolute_file_path);
 	}
@@ -174,6 +174,8 @@ void FaceSearch::btnStart()
 	QList<QString>::Iterator it = list.begin(), itend = list.end();
 	int i = 0;
 	for (; it != itend; it++, i++) {
+
+
 		g_threadpool.add_task(&FaceSearch::getOneFileFace, this, *it);
 	}
 }
@@ -192,7 +194,7 @@ static void v_packet_cb(intptr_t param, int streamid, const void* packet, size_t
 	int* pResults = NULL;
 	int64_t start = GetTimestamp();
 	pResults = face_api_detect(item->faceObject, item->pBuffer, (unsigned char*)packet, w, h, w * 3);
-	qDebug() << "Detect Finished, it costs " << GetTimestamp() - start << " milli-seconds\n";
+	//qDebug() << "Detect Finished, it costs " << GetTimestamp() - start << " milli-seconds\n";
 	for (int i = 0; i < (pResults ? *pResults : 0); i++) {
 		short* p = ((short*)(pResults + 1)) + 142 * i;
 		if ((p[3] > 80) && (p[4] > 80) && (abs(p[4]) > 75))
@@ -203,12 +205,14 @@ static void v_packet_cb(intptr_t param, int streamid, const void* packet, size_t
 			float nSimilarity = 0l;
 			face_api_compare_feature(item->faceObject, pFeature, pThis->getFeature(), nSimilarity);
 			printf("nSimilarity=%.3f\n", nSimilarity);
-
+			qDebug() << "Detect Finished, it costs " << GetTimestamp() - start << " milli-seconds\n";
 			if (item->similarity < nSimilarity)
 			{
 				if (item->handle)
 				{
 					QString file(item->SaveFile);
+					file.append(item->FileName);
+					file.append("_");
 					file.append(QString::number(time));
 					file.append(".jpg");
 
@@ -301,10 +305,15 @@ static void e_onerror(intptr_t param, int code)
 
 void FaceSearch::getOneFileFace(QString file)
 {
+
+	QFileInfo fileInfo(file);
+	QString name= fileInfo.baseName();
+
 	FACE_ITEM* item = new FACE_ITEM();
 	item->pThis =(intptr_t) this;
 	item->feature = _feature;
 	item->File = file;
+	item->FileName = name;
 	item->SaveFile = ui.lineEdit_save->text();
 	item->pBuffer = new unsigned char[DETECT_BUFFER_SIZE];
 	item->similarity = ui.lineEdit_Similarity->text().toFloat();

@@ -37,7 +37,7 @@
 
 struct HiFaceSdkPara
 {
-	std::string strModulePath = "D:\\Open\\HI\\Release\\x64\\model\\";
+	std::string strModulePath = "model/";
 	int nModel = 0;    // 0:Ä¬ÈÏ, 1:CPU, 2:GPU
 	int nDeviceIndex = 0;   // GPUË÷Òý
 	int nMinFaceSize = 80;
